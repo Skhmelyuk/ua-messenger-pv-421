@@ -1,4 +1,3 @@
-import { Stack } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ClerkProvider } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
