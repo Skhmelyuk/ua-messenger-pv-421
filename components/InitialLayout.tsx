@@ -16,22 +16,17 @@ export default function InitialLayout() {
 
     // Якщо користувач залогінений — забороняємо тільки auth-екрани.
     // Інші роути (наприклад /user/[id]) мають відкриватися без редіректу.
-    if (isAuthenticated) {
-      if (inAuthScreen) {
-        router.replace("/(tabs)");
-      }
-    } else {
-      // Якщо НЕ залогінений — дозволяємо тільки auth-екрани.
-      if (!inAuthScreen) {
-        router.replace("/(auth)/login");
-      }
+    if (isAuthenticated && inAuthScreen) {
+      router.replace("/(tabs)");
+    } else if (!isAuthenticated && !inAuthScreen) {
+      router.replace("/(auth)/login");
     }
 
     // Ховаємо splash тільки після редіректу
     SplashScreen.hideAsync();
   }, [isAuthenticated, isLoading, segments, router]);
 
-  if (!isLoading) {
+  if (isLoading) {
     return null;
   }
 
