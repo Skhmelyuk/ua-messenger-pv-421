@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { useClerk } from "@clerk/expo";
+import { useAuth } from "@clerk/expo";
 
 export default function ScreenHome() {
-  const { signOut } = useClerk();
+  const { signOut } = useAuth();
 
   const handleLogout = () => {
     signOut();

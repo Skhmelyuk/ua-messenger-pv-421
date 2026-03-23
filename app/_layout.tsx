@@ -1,7 +1,7 @@
 import { SafeAreaView } from "react-native-safe-area-context";
 import InitialLayout from "@/components/InitialLayout";
 import { tokenCache } from "@clerk/expo/token-cache";
-import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
+import { ClerkProvider, useAuth } from "@clerk/expo";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ConvexReactClient } from "convex/react";
 

@@ -1,24 +1,22 @@
 import { useEffect } from "react";
-import { useAuth } from "@clerk/expo";
+import { useConvexAuth } from "convex/react";
 import * as SplashScreen from "expo-splash-screen";
 import { Stack, useRouter, useSegments } from "expo-router";
 
 export default function InitialLayout() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isAuthenticated, isLoading } = useConvexAuth();
 
   const segments = useSegments();
   const router = useRouter();
 
-  console.log("InitialLayout", { isSignedIn, isLoaded, segments });
-
   useEffect(() => {
-    if (!isLoaded) return;
+    if (isLoading) return;
 
     const inAuthScreen = segments[0] === "(auth)";
 
     // Якщо користувач залогінений — забороняємо тільки auth-екрани.
     // Інші роути (наприклад /user/[id]) мають відкриватися без редіректу.
-    if (isSignedIn) {
+    if (isAuthenticated) {
       if (inAuthScreen) {
         router.replace("/(tabs)");
       }
@@ -31,9 +29,9 @@ export default function InitialLayout() {
 
     // Ховаємо splash тільки після редіректу
     SplashScreen.hideAsync();
-  }, [isSignedIn, isLoaded, segments, router]);
+  }, [isAuthenticated, isLoading, segments, router]);
 
-  if (!isLoaded) {
+  if (!isLoading) {
     return null;
   }
 
