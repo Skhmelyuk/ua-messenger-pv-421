@@ -31,7 +31,7 @@ export default function InitialLayout() {
     SplashScreen.hideAsync();
   }, [isAuthenticated, isLoading, segments, router]);
 
-  if (!isLoading) {
+  if (isLoading) {
     return null;
   }
 
