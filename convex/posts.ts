@@ -155,11 +155,70 @@ export const deletePost = mutation({
       await ctx.db.delete(bookmark._id);
     }
 
+    const notifications = await ctx.db
+      .query("notifications")
+      .withIndex("by_post", (q) => q.eq("postId", args.postId))
+      .collect();
+
+    for (const notification of notifications) {
+      await ctx.db.delete(notification._id);
+    }
+
     await ctx.storage.delete(post.storageId);
     await ctx.db.delete(args.postId);
 
     await ctx.db.patch(currentUser._id, {
       posts: Math.max(0, (currentUser.posts || 1) - 1),
     });
+  },
+});
+
+export const getPostById = query({
+  args: {
+    postId: v.id("posts"),
+  },
+  handler: async (ctx, args) => {
+    // 1. Отримуємо пост
+    const post = await ctx.db.get(args.postId);
+    if (!post) return null;
+
+    // 2. Отримуємо автора посту
+    const author = await ctx.db.get(post.userId);
+
+    // 3. Перевіряємо поточного користувача
+    const currentUser = await getAuthenticatedUser(ctx);
+    let isLiked = false;
+    let isBookmarked = false;
+
+    if (currentUser) {
+      // Перевіряємо лайк
+      const like = await ctx.db
+        .query("likes")
+        .withIndex("by_user_and_post", (q) =>
+          q.eq("userId", currentUser._id).eq("postId", post._id),
+        )
+        .first();
+      isLiked = !!like;
+
+      // Перевіряємо чи в закладках
+      const bookmark = await ctx.db
+        .query("bookmarks")
+        .withIndex("by_both", (q) =>
+          q.eq("userId", currentUser._id).eq("postId", post._id),
+        )
+        .first();
+      isBookmarked = !!bookmark;
+    }
+
+    return {
+      ...post,
+      author: {
+        _id: author!._id,
+        username: author!.username,
+        image: author!.image,
+      },
+      isLiked,
+      isBookmarked,
+    };
   },
 });
