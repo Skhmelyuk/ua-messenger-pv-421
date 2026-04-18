@@ -7,23 +7,6 @@ import { styles } from "@/assets/styles/feed.styles";
 import { Loader } from "@/components/Loader";
 import { Link } from "expo-router";
 
-function NoBookmarksFound() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: COLORS.background,
-      }}
-    >
-      <Text style={{ color: COLORS.primary, fontSize: 22 }}>
-        No bookmarked posts yet
-      </Text>
-    </View>
-  );
-}
-
 export default function Bookmarks() {
   // Перевірка автентифікації
   const { isAuthenticated } = useConvexAuth();
@@ -31,7 +14,7 @@ export default function Bookmarks() {
   // Отримання закладок (skip якщо не авторизований)
   const bookmarkedPosts = useQuery(
     api.bookmarks.getBookmarkedPosts,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
 
   // Loading state
@@ -75,6 +58,23 @@ export default function Bookmarks() {
           );
         })}
       </ScrollView>
+    </View>
+  );
+}
+
+function NoBookmarksFound() {
+  return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: COLORS.background,
+      }}
+    >
+      <Text style={{ color: COLORS.primary, fontSize: 22 }}>
+        No bookmarked posts yet
+      </Text>
     </View>
   );
 }
