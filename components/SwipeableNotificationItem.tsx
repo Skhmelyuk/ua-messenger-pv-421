@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, Dimensions, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  StyleSheet,
+} from "react-native";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/theme";
@@ -14,6 +20,7 @@ import Animated, {
   Extrapolation,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { Link } from "expo-router";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.3;
@@ -36,7 +43,10 @@ interface NotificationProps {
   onDelete: (id: Id<"notifications">) => void;
 }
 
-export function SwipeableNotificationItem({ notification, onDelete }: NotificationProps) {
+export function SwipeableNotificationItem({
+  notification,
+  onDelete,
+}: NotificationProps) {
   const translateX = useSharedValue(0);
 
   const handleDelete = () => {
@@ -67,7 +77,7 @@ export function SwipeableNotificationItem({ notification, onDelete }: Notificati
       translateX.value,
       [-SWIPE_THRESHOLD, 0],
       [1, 0],
-      Extrapolation.CLAMP
+      Extrapolation.CLAMP,
     );
     return { opacity };
   });
@@ -83,35 +93,41 @@ export function SwipeableNotificationItem({ notification, onDelete }: Notificati
         <Animated.View style={[swipeStyles.content, animatedStyle]}>
           <View style={[styles.notificationItem, { marginBottom: 0 }]}>
             <View style={styles.notificationContent}>
-              <TouchableOpacity style={styles.avatarContainer}>
-                <Image
-                  source={notification.sender.image}
-                  style={styles.avatar}
-                  contentFit="cover"
-                  transition={200}
-                />
-                <View style={styles.iconBadge}>
-                  {notification.type === "like" ? (
-                    <Ionicons name="heart" size={14} color={COLORS.primary} />
-                  ) : notification.type === "follow" ? (
-                    <Ionicons name="person-add" size={14} color="#8B5CF6" />
-                  ) : (
-                    <Ionicons name="chatbubble" size={14} color="#3B82F6" />
-                  )}
-                </View>
-              </TouchableOpacity>
+              <Link href={`/user/${notification.sender._id}`} asChild>
+                <TouchableOpacity style={styles.avatarContainer}>
+                  <Image
+                    source={notification.sender.image}
+                    style={styles.avatar}
+                    contentFit="cover"
+                    transition={200}
+                  />
+                  <View style={styles.iconBadge}>
+                    {notification.type === "like" ? (
+                      <Ionicons name="heart" size={14} color={COLORS.primary} />
+                    ) : notification.type === "follow" ? (
+                      <Ionicons name="person-add" size={14} color="#8B5CF6" />
+                    ) : (
+                      <Ionicons name="chatbubble" size={14} color="#3B82F6" />
+                    )}
+                  </View>
+                </TouchableOpacity>
+              </Link>
 
               <View style={styles.notificationInfo}>
-                <Text style={styles.username}>{notification.sender.username}</Text>
+                <Text style={styles.username}>
+                  {notification.sender.username}
+                </Text>
                 <Text style={styles.action}>
                   {notification.type === "follow"
                     ? "started following you"
                     : notification.type === "like"
-                    ? "liked your post"
-                    : `commented: "${notification.comment}"`}
+                      ? "liked your post"
+                      : `commented: "${notification.comment}"`}
                 </Text>
                 <Text style={styles.timeAgo}>
-                  {formatDistanceToNow(notification._creationTime, { addSuffix: true })}
+                  {formatDistanceToNow(notification._creationTime, {
+                    addSuffix: true,
+                  })}
                 </Text>
               </View>
             </View>

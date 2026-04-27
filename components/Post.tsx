@@ -42,7 +42,7 @@ export const Post = ({ post }: PostProps) => {
   const { user } = useUser();
   const currentUser = useQuery(
     api.users.getUserByClerkId,
-    user ? { clerkId: user.id } : "skip"
+    user ? { clerkId: user.id } : "skip",
   );
 
   // Mutations
@@ -82,6 +82,14 @@ export const Post = ({ post }: PostProps) => {
     <View style={styles.post}>
       {/* HEADER */}
       <View style={styles.postHeader}>
+        <Link
+          href={
+            currentUser?._id === post.author._id
+              ? "/(tabs)/profile"
+              : `/user/${post.author._id}`
+          }
+          asChild
+        >
           <TouchableOpacity style={styles.postHeaderLeft}>
             <Image
               source={post.author.image}
@@ -92,6 +100,7 @@ export const Post = ({ post }: PostProps) => {
             />
             <Text style={styles.postUsername}>{post.author.username}</Text>
           </TouchableOpacity>
+        </Link>
 
         {/* Delete or Menu button */}
         {post.author._id === currentUser?._id ? (
