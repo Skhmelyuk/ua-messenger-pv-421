@@ -1,4 +1,5 @@
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
+import { v } from "convex/values";
 import { getAuthenticatedUser } from "./users";
 
 export const getNotifications = query({
@@ -45,5 +46,35 @@ export const getNotifications = query({
     );
 
     return notificationsWithInfo;
+  },
+});
+
+export const deleteNotification = mutation({
+  // Визначаємо аргументи, які приймає функція
+  args: {
+    notificationId: v.id("notifications"), // ID сповіщення для видалення
+  },
+  handler: async (ctx, args) => {
+    // 1. Отримуємо поточного авторизованого користувача
+    const currentUser = await getAuthenticatedUser(ctx);
+
+    // 2. Знаходимо сповіщення в базі даних
+    const notification = await ctx.db.get(args.notificationId);
+
+    // 3. Перевірка: чи існує сповіщення
+    if (!notification) {
+      throw new Error("Notification not found");
+    }
+
+    // 4. Перевірка безпеки: чи належить сповіщення цьому користувачу
+    // Це запобігає видаленню чужих сповіщень
+    if (notification.receiverId !== currentUser._id) {
+      throw new Error("You can only delete your own notifications");
+    }
+
+    // 5. Видаляємо сповіщення з бази даних
+    await ctx.db.delete(args.notificationId);
+
+    return { success: true };
   },
 });
