@@ -12,6 +12,7 @@ import {
   Keyboard,
 } from "react-native";
 import { Image } from "expo-image";
+import { Link } from "expo-router";
 import { styles } from "@/assets/styles/profile.styles";
 import { useAuth } from "@clerk/expo";
 import { useMutation, useQuery } from "convex/react";
@@ -119,9 +120,18 @@ export default function ProfileScreen() {
             >
               <Text style={styles.editButtonText}>Edit Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.shareButton}>
-              <Ionicons name="share-outline" size={20} color={COLORS.white} />
-            </TouchableOpacity>
+
+            <Link href="/chats" asChild>
+              <TouchableOpacity
+                style={[styles.shareButton, { marginLeft: 10 }]}
+              >
+                <Ionicons
+                  name="chatbubbles-outline"
+                  size={20}
+                  color={COLORS.white}
+                />
+              </TouchableOpacity>
+            </Link>
           </View>
         </View>
 

@@ -7,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery } from "convex/react";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useUser } from "@clerk/expo";
 import {
   View,
   Text,
@@ -19,6 +20,9 @@ import {
 export default function UserProfileScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const { user } = useUser();
+
+  const getOrCreateConversation = useMutation(api.chat.getOrCreateConversation);
 
   const profile = useQuery(api.users.getUserProfile, { id: id as Id<"users"> });
   const posts = useQuery(api.posts.getPostsByUser, {
@@ -75,19 +79,36 @@ export default function UserProfileScreen() {
           <Text style={styles.name}>{profile.fullname}</Text>
           {profile.bio && <Text style={styles.bio}>{profile.bio}</Text>}
 
-          <Pressable
-            style={[styles.followButton, isFollowing && styles.followingButton]}
-            onPress={() => toggleFollow({ followingId: id as Id<"users"> })}
-          >
-            <Text
-              style={[
-                styles.followButtonText,
-                isFollowing && styles.followingButtonText,
-              ]}
+          <View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
+            <Pressable
+              style={[styles.followButton, isFollowing && styles.followingButton, { flex: 1 }]}
+              onPress={() => toggleFollow({ followingId: id as Id<"users"> })}
             >
-              {isFollowing ? "Following" : "Follow"}
-            </Text>
-          </Pressable>
+              <Text
+                style={[
+                  styles.followButtonText,
+                  isFollowing && styles.followingButtonText,
+                ]}
+              >
+                {isFollowing ? "Following" : "Follow"}
+              </Text>
+            </Pressable>
+
+            <Pressable
+              style={[styles.followButton, { flex: 1, backgroundColor: COLORS.primary }]}
+              onPress={async () => {
+                if (!user) return;
+                const conversationId = await getOrCreateConversation({
+                  currentUserId: user.id,
+                  otherUserId: profile.clerkId,
+                });
+                const name = profile.fullname || profile.username || "Chat";
+                router.push(`/chat/${conversationId}?otherUserId=${profile.clerkId}&name=${encodeURIComponent(name)}`);
+              }}
+            >
+              <Text style={styles.followButtonText}>Message</Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* POSTS GRID */}

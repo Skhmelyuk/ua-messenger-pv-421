@@ -71,4 +71,22 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_expires", ["expiresAt"]),
+
+  // Таблиця розмов (чатів) між двома користувачами
+  conversations: defineTable({
+    participantOneId: v.string(), // Clerk ID першого користувача
+    participantTwoId: v.string(), // Clerk ID другого користувача
+    lastMessageText: v.optional(v.string()),
+    lastMessageTime: v.optional(v.number()),
+  })
+    .index("by_participantOne", ["participantOneId"])
+    .index("by_participantTwo", ["participantTwoId"]),
+
+  // Таблиця повідомлень
+  messages: defineTable({
+    conversationId: v.id("conversations"),
+    senderId: v.string(), // Clerk ID відправника
+    text: v.string(),
+    createdAt: v.number(),
+  }).index("by_conversation", ["conversationId"]),
 });
